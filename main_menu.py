@@ -63,7 +63,14 @@ def main():
                     compare_menu()
                 except HomeException:
                     continue
-
+                
+            #export to csv
+            elif choice == "6":                
+                try:
+                    export_menu()
+                except HomeException:
+                    continue
+        
             #exit program
             elif choice == "6":
                 print("\nExiting....", 
