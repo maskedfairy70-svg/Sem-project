@@ -1,7 +1,7 @@
 
 from colorama import Fore, Style
 from prettytable import PrettyTable
-from shared_functions import HomeException, get_input_with_navigation, clear_screen, validate_yes_no, prompt_try_another_month, score_calculation, BackException
+from shared_functions import HomeException, get_input_with_navigation, clear_screen, validate_yes_no, prompt_try_another_month, score_calculation, BackException, months_with_scores
 from database import get_incidents_by_month, get_monthly_score, check_month_has_data, get_all_monthly_scores
 
 def compare_menu():
@@ -11,7 +11,7 @@ def compare_menu():
         print(f"{Fore.YELLOW}     Compare Monthly Scores:{Style.RESET_ALL}")
         print("-----------------------------------")
         print("1. Compare two months")
-        print("2. show all monthly scores")
+        print("2. Show all monthly scores")
         print("3. Return to main menu")
         print("-----------------------------------")
         print(f"(Type {Fore.CYAN}BACK{Style.RESET_ALL} to go back or {Fore.CYAN}HOME{Style.RESET_ALL} for main menu)")
@@ -68,6 +68,7 @@ def compare_scores():
     while True:
             #ask for first year/month
         try:
+            months_with_scores()
             print("\nFor first month:", end="")
             ym1 = get_input_with_navigation("\nPlease enter year and month (YYYY-MM or type BACK/HOME): ").strip()
         except BackException:

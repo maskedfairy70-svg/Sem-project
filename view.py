@@ -1,6 +1,6 @@
 from prettytable import PrettyTable, ALL
 from database import get_all_incidents, get_incident_by_name
-from shared_functions import clear_screen, validate_yes_no, BackException, HomeException, get_input_with_navigation
+from shared_functions import available_incidents, clear_screen, validate_yes_no, BackException, HomeException, get_input_with_navigation
 from colorama import Fore, Style
 
 
@@ -69,18 +69,16 @@ def render_incidents(incidents, title):
 
 def view_all_incidents():
     while True:
-        incidents = get_all_incidents()
-        render_incidents(incidents, "All Recorded Incidents")
-        print(f"\n(Type {Fore.CYAN}BACK{Style.RESET_ALL} to return to View menu or {Fore.CYAN}HOME{Style.RESET_ALL} for main menu)")
-        user_input = get_input_with_navigation("\nPress Enter to reload, or type BACK/HOME: ").strip().upper()
-
-        if user_input == "BACK":
-            raise BackException()
-        elif user_input == "HOME":
-            raise HomeException()
-        else:
-            continue
-
+        try:
+            incidents = get_all_incidents()
+            render_incidents(incidents, "All Recorded Incidents")
+            print(f"\n(Type {Fore.CYAN}BACK{Style.RESET_ALL} to return to View menu or {Fore.CYAN}HOME{Style.RESET_ALL} for main menu)")
+            if not get_input_with_navigation("\nPress Enter to reload, or type BACK/HOME: ").strip().upper() == "BACK":
+                continue
+        except BackException:
+            return
+        except HomeException:
+            raise
 
 def view_incidents():
     while True:
@@ -97,14 +95,11 @@ def view_incidents():
             choice = get_input_with_navigation("\nChoose an option (1-3): ")
 
             if choice == "1":
-                try:
-                    view_all_incidents()
-                except BackException:
-                    continue
-                except HomeException:
-                    raise
+                view_all_incidents()
+
             elif choice == "2":
                 search_incident()
+
             elif choice == "3":
                 return
             else:
@@ -117,9 +112,10 @@ def view_incidents():
 
 
 def search_incident():
-    clear_screen()
     while True:
+        clear_screen()
         try:
+            available_incidents()
             #ask for incident name
             inc_name = get_input_with_navigation("\nPlease enter the incident name (or type BACK/HOME): ")
 
@@ -132,15 +128,15 @@ def search_incident():
 
             if not incident:
                 print(f"\nNo incident found with name '{inc_name}'.")
-                if not validate_yes_no("Try searching for another incident? (y/n): "):
+                if not validate_yes_no("\nTry searching for another incident? (y/n or type BACK/HOME): "):
                     return
                 continue
-
+            
             #display the incident
             render_incidents([incident], f"Incident: {inc_name}")
 
             #check if want to search other incidents
-            if not validate_yes_no("\nSearch for another incident? (y/n): "):
+            if not validate_yes_no("\nSearch for another incident? (y/n or type BACK/HOME): "):
                 return
         except BackException:
             return

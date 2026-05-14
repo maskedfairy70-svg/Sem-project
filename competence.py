@@ -1,5 +1,5 @@
-from shared_functions import score_calculation, clear_screen, prompt_try_another_month, validate_yes_no, BackException, HomeException, get_input_with_navigation
-from database import get_incidents_by_month, get_monthly_score, set_monthly_score, check_month_has_data
+from shared_functions import score_calculation, clear_screen, prompt_try_another_month, validate_yes_no, BackException, HomeException, get_input_with_navigation, dates_of_incidents
+from database import get_incidents_by_month, get_monthly_score, set_monthly_score, check_month_has_data, get_all_incidents
 from colorama import Fore, Style
 
 def competence_menu():
@@ -10,7 +10,7 @@ def competence_menu():
             print(f"{Fore.YELLOW}        Calculate Score Menu:{Style.RESET_ALL}")
             print("-----------------------------------")
             print("1. Calculate for a single month")
-            print("2. Calculate for multiple months")
+            print("2. Calculate for all months")
             print("3. Return to main menu")
             print("-----------------------------------")
             print(f"(Type {Fore.CYAN}BACK{Style.RESET_ALL} to go back or {Fore.CYAN}HOME{Style.RESET_ALL} for main menu)")
@@ -24,7 +24,7 @@ def competence_menu():
 
             elif choice == "2":
                 try:
-                    calculate_multiple_months()
+                    calculate_all_months()
                 except HomeException:
                     raise
 
@@ -44,7 +44,8 @@ def calculate_competence():
     while True:
         clear_screen()
             #ask for year and month
-        ym = get_input_with_navigation("Enter the date and time of the incident (YYYY-MM-DD HH:MM or type BACK/HOME): ").strip()
+        dates_of_incidents()
+        ym = get_input_with_navigation("\nEnter the date (YYYY-MM or type BACK/HOME): ").strip()
 
         try:
             year, month = map(int, ym.split("-"))
@@ -106,13 +107,36 @@ def calculate_single_month():
         except HomeException:
             raise
 
-def calculate_multiple_months():
+def calculate_all_months():
     while True:
         try:
-            calculate_competence()
+            clear_screen()
+            incidents = get_all_incidents()
+            incident_months = set()
+            for incident in incidents:
+                date_str = incident.get("Date and Time")
+                if date_str:
+                    try:
+                        year, month = map(int, date_str.split("-")[:2])
+                        incident_months.add((year, month))
+                    except ValueError:
+                        continue
+
+            if not validate_yes_no("\nCalculate scores for all months without scores? (y/n or type BACK/HOME): "):
+                return
+
+            for year, month in incident_months:
+                incidents = get_incidents_by_month(year, month)
+                score = score_calculation(incidents)
+                if score is not None:
+                    set_monthly_score(year, month, score)
+                    print(f"Calculated and saved score for {year}-{month:02d}: {score}")
+                else:
+                    print(f"Could not calculate score for {year}-{month:02d}.")
+
+            if not validate_yes_no("\nAll done. Calculate again? (y/n or type BACK/HOME): "):
+                return
         except BackException:
             return
         except HomeException:
             raise
-
-        input("\nReady to calculate for another month...")

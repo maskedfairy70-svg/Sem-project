@@ -1,5 +1,5 @@
-from database import delete_incident_by_name, delete_all_incidents
-from shared_functions import clear_screen, validate_yes_no, BackException, HomeException, get_input_with_navigation
+from database import delete_incident_by_name, delete_all_incidents, delete_all_monthly_scores, delete_monthly_score
+from shared_functions import clear_screen, validate_yes_no, BackException, HomeException, get_input_with_navigation, available_incidents
 from colorama import Fore, Style
 
 
@@ -18,19 +18,11 @@ def delete_incident_menu():
             choice = get_input_with_navigation("\nChoose an option (1-3): ")
 
             if choice == "1":
-                try:
-                    delete_by_name()
-                except BackException:
-                    continue
-                except HomeException:
-                    raise
+                delete_by_name()
+
             elif choice == "2":
-                try:
-                    delete_all()
-                except BackException:
-                    continue
-                except HomeException:
-                    raise
+                delete_all()
+
             elif choice == "3":
                 return
             else:
@@ -46,6 +38,8 @@ def delete_by_name():
     while True:
         try:
             clear_screen()
+            available_incidents()
+
             inc_name = get_input_with_navigation("\nEnter the incident name to delete (or type BACK/HOME): ")
             if not inc_name:
                 print("Incident name cannot be empty.")
@@ -53,6 +47,7 @@ def delete_by_name():
 
             if validate_yes_no(f"Are you sure you want to delete '{inc_name}'? (y/n or type BACK/HOME): "):
                 if delete_incident_by_name(inc_name):
+                    delete_monthly_score(inc_name)
                     print(f"\nIncident '{inc_name}' deleted successfully.")
                 else:
                     print(f"\nNo incident found with name '{inc_name}'.")
@@ -72,6 +67,8 @@ def delete_all():
             user_input = get_input_with_navigation("Are you sure you want to delete ALL incidents? (y/n or type BACK/HOME): ").lower()
             if user_input in ["y", "yes"]:
                 delete_all_incidents()
+                delete_all_monthly_scores()
+
                 print("\nAll incidents have been deleted.")
                 break
             elif user_input in ["n", "no"]:

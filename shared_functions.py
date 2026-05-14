@@ -1,9 +1,45 @@
 from datetime import datetime
 import math
 import os
+from colorama import Fore, Style
+from database import get_all_incidents, get_all_monthly_scores
 
 tru_dte = ""
 
+def months_with_scores():
+    # get unique year-month combinations from incidents
+    scores = get_all_monthly_scores()
+    scored_months = set()
+    for score in scores:
+        month_year = score.get("Year and Month")
+        if month_year:
+            scored_months.add(month_year)
+
+    print("-----------------------------------")
+    print(f"{Fore.YELLOW}       Months with scores:{Style.RESET_ALL}")
+    print("-----------------------------------")
+    for month_year in scored_months:
+        print(f"- {month_year}")
+    if not scored_months:
+        print("No months have scores yet.")
+
+def dates_of_incidents():
+    incidents = get_all_incidents()
+    print("-----------------------------------")
+    print(f"{Fore.YELLOW}       Dates of incidents:{Style.RESET_ALL}")
+    print("-----------------------------------")
+    for incident in incidents:
+        date = incident.get("Date and Time")
+        if date:
+            print(f"- {date}")
+
+def available_incidents():
+    incidents = get_all_incidents()
+    print("-----------------------------------")
+    print(f"{Fore.YELLOW}       Available incidents:{Style.RESET_ALL}")
+    print("-----------------------------------")
+    for incident in incidents:
+        print(f"- {incident['Incident name']}")
 
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")

@@ -6,7 +6,7 @@ from delete import delete_incident_menu
 from shared_functions import HomeException, BackException, clear_screen, get_input_with_navigation
 from compare import compare_menu
 from database import init_database
-
+from export import export_menu
 
     #main menu loop.
 def main():
@@ -23,11 +23,12 @@ def main():
             print("3. Delete incident/s")
             print("4. Calculate for competence of month/s")
             print("5. Compare monthly scores")
-            print(Fore.RED + "6. Exit" + Style.RESET_ALL)
+            print("6. Export incident/s to CSV")
+            print(Fore.RED + "7. Exit" + Style.RESET_ALL)
             print("-----------------------------------------")
 
             #get choice
-            choice = get_input_with_navigation("\nChoose an option (1-6): ").strip()
+            choice = get_input_with_navigation("\nChoose an option (1-7): ").strip()
 
             #add incident
             if choice == "1":
@@ -63,7 +64,7 @@ def main():
                     compare_menu()
                 except HomeException:
                     continue
-                
+
             #export to csv
             elif choice == "6":                
                 try:
@@ -72,7 +73,7 @@ def main():
                     continue
         
             #exit program
-            elif choice == "6":
+            elif choice == "7":
                 print("\nExiting....", 
                       "\nThank you for using this system, goodbye!")
                 break 

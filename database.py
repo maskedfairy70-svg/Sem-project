@@ -5,6 +5,32 @@ from datetime import datetime
     #database file path
 DB_PATH = "incidents.db"
 
+def delete_monthly_score(incident_name):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    #get the year and month of the incident to be deleted
+    cursor.execute("""
+        SELECT year, month FROM incidents WHERE incident_name = ?
+    """, (incident_name,))
+
+    result = cursor.fetchone()
+    if result:
+        year, month = result
+        cursor.execute("DELETE FROM monthly_scores WHERE year = ? AND month = ?", (year, month))
+
+    conn.commit()
+    conn.close()
+
+def delete_all_monthly_scores():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM monthly_scores")
+
+    conn.commit()
+    conn.close()
+
 def get_all_monthly_scores():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
